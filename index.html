@@ -12,28 +12,23 @@
             color: #333;
             padding: 20px;
         }
-
         h1, h2 {
             text-align: center;
         }
-
         table {
             width: 100%;
             margin: 20px 0;
             border-collapse: collapse;
         }
-
         th, td {
             padding: 10px;
             border: 1px solid #ccc;
             text-align: left;
         }
-
         #chart-container {
             width: 80%;
             margin: 40px auto;
         }
-
         canvas {
             background-color: #fff;
             border: 1px solid #ccc;
@@ -81,29 +76,18 @@
     </form>
 
     <script>
-        // Função para carregar as respostas armazenadas no LocalStorage
         function loadResponses() {
             const storedResponses = JSON.parse(localStorage.getItem('userResponses')) || [];
             const responsesBody = document.getElementById('responses-body');
-
-            // Limpa a tabela antes de preenchê-la
             responsesBody.innerHTML = '';
 
-            // Dados para o gráfico
-            const ratingCounts = {
-                "1": 0,
-                "2": 0,
-                "3": 0,
-                "4": 0,
-                "5": 0
-            };
+            const ratingCounts = { "1": 0, "2": 0, "3": 0, "4": 0, "5": 0 };
 
-            // Preenche a tabela com as respostas armazenadas
             storedResponses.forEach(response => {
                 Object.keys(response).forEach(pergunta => {
                     const tr = document.createElement('tr');
-                    const nota = response[pergunta].nota;
-                    const comentario = response[pergunta].comentario;
+                    const nota = response[pergunta].rating;
+                    const comentario = response[pergunta].comment;
 
                     tr.innerHTML = `
                         <td>${pergunta}</td>
@@ -113,21 +97,18 @@
 
                     responsesBody.appendChild(tr);
 
-                    // Atualiza a contagem de notas para o gráfico
                     if (nota) {
                         ratingCounts[nota]++;
                     }
                 });
             });
 
-            // Desenha o gráfico com as notas
             drawChart(ratingCounts);
         }
 
-        // Função para desenhar o gráfico usando Chart.js
         function drawChart(ratingCounts) {
             const ctx = document.getElementById('ratings-chart').getContext('2d');
-            const chart = new Chart(ctx, {
+            new Chart(ctx, {
                 type: 'bar',
                 data: {
                     labels: ['1', '2', '3', '4', '5'],
@@ -140,28 +121,17 @@
                             ratingCounts['4'],
                             ratingCounts['5']
                         ],
-                        backgroundColor: [
-                            '#ff4d4d',
-                            '#ff9933',
-                            '#ffcc00',
-                            '#66cc66',
-                            '#3399ff'
-                        ],
+                        backgroundColor: ['#ff4d4d', '#ff9933', '#ffcc00', '#66cc66', '#3399ff'],
                         borderColor: '#333',
                         borderWidth: 1
                     }]
                 },
                 options: {
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
+                    scales: { y: { beginAtZero: true } }
                 }
             });
         }
 
-        // Função para enviar as respostas para o endpoint
         function submitResponse(question, rating, comment) {
             const responseData = {
                 question: question,
@@ -169,29 +139,28 @@
                 comment: comment
             };
 
-            fetch('https://cartromresp.vercel.app/', { // Substitua pelo endpoint real se necessário
+            fetch('https://cartromresp.vercel.app/', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(responseData)
             })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    return response.text().then(text => { throw new Error(`Erro ${response.status}: ${text}`); });
+                }
+                return response.json();
+            })
             .then(data => {
                 console.log('Sucesso:', data);
-                // Opcional: mostrar uma mensagem de sucesso
                 alert('Resposta enviada com sucesso!');
-                // Recarregar respostas para atualizar tabela e gráfico
                 loadResponses();
             })
             .catch(error => {
                 console.error('Erro:', error);
-                // Opcional: mostrar uma mensagem de erro
                 alert('Ocorreu um erro ao enviar a resposta.');
             });
         }
 
-        // Adiciona evento de submissão ao formulário
         document.getElementById('response-form').addEventListener('submit', function(event) {
             event.preventDefault();
 
@@ -199,11 +168,9 @@
             const rating = document.getElementById('rating').value;
             const comment = document.getElementById('comment').value;
 
-            // Envia a resposta para o endpoint
             submitResponse(question, rating, comment);
         });
 
-        // Carrega as respostas assim que a página é carregada
         window.onload = loadResponses;
     </script>
 
