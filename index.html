@@ -1,16 +1,28 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Respostas</title>
-    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="container">
-        <h1>Respostas Recebidas</h1>
-        <div id="responses"></div>
-    </div>
-    <script src="script.js"></script>
+    <h1>Respostas do Formulário</h1>
+    <ul id="response-list"></ul>
+
+    <script>
+        async function fetchResponses() {
+            const response = await fetch('http://localhost:3000/respostas');
+            const data = await response.json();
+
+            const responseList = document.getElementById('response-list');
+            data.forEach(item => {
+                const listItem = document.createElement('li');
+                listItem.textContent = `Pergunta ${item.question_id}: Nota ${item.rating}, Comentário: ${item.comment}`;
+                responseList.appendChild(listItem);
+            });
+        }
+
+        fetchResponses();
+    </script>
 </body>
 </html>
