@@ -61,6 +61,8 @@
     </div>
 
     <script>
+        res.setHeader('Access-Control-Allow-Origin', 'https://cartromform.vercel.app');
+
         // Função para carregar as respostas do servidor
         function loadResponses() {
             fetch('https://cartromform.vercel.app/')
