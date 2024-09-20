@@ -1,28 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Respostas</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Respostas Recebidas</title>
 </head>
 <body>
-    <h1>Respostas do Formulário</h1>
-    <ul id="response-list"></ul>
+  <h1>Respostas</h1>
+  <div id="respostas"></div>
 
-    <script>
-        async function fetchResponses() {
-            const response = await fetch('http://localhost:3000/respostas');
-            const data = await response.json();
-
-            const responseList = document.getElementById('response-list');
-            data.forEach(item => {
-                const listItem = document.createElement('li');
-                listItem.textContent = `Pergunta ${item.question_id}: Nota ${item.rating}, Comentário: ${item.comment}`;
-                responseList.appendChild(listItem);
-            });
-        }
-
-        fetchResponses();
-    </script>
+  <script>
+    fetch('https://seusite-de-resposta.vercel.app/respostas')
+      .then(response => response.json())
+      .then(data => {
+        const respostasDiv = document.getElementById('respostas');
+        respostasDiv.innerHTML = `
+          <p>Cor favorita: ${data.question1}</p>
+          <p>Animal favorito: ${data.question2}</p>
+        `;
+      })
+      .catch(error => {
+        console.error('Erro ao receber as respostas:', error);
+      });
+  </script>
 </body>
 </html>
