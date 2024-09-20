@@ -59,7 +59,7 @@
     <script>
         // Função para carregar as respostas do servidor
         function loadResponses() {
-            fetch('https://cartromform.vercel.app/api/endpoint') // Certifique-se de usar o endpoint correto
+            fetch('https://cartromform.vercel.app') // Certifique-se de usar o endpoint correto
                 .then(response => {
                     if (!response.ok) {
                         throw new Error('Network response was not ok');
