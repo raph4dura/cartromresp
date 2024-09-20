@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Respostas Armazenadas e Gráfico</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- Biblioteca para gráficos -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -40,7 +40,6 @@
     <h1>Respostas Armazenadas</h1>
     <h2>Respostas dos Usuários</h2>
 
-    <!-- Tabela de respostas -->
     <table id="responses-table">
         <thead>
             <tr>
@@ -49,24 +48,24 @@
                 <th>Comentário</th>
             </tr>
         </thead>
-        <tbody id="responses-body">
-            <!-- As respostas serão inseridas aqui via JS -->
-        </tbody>
+        <tbody id="responses-body"></tbody>
     </table>
 
-    <!-- Gráfico -->
     <h2>Gráfico das Notas</h2>
     <div id="chart-container">
         <canvas id="ratings-chart"></canvas>
     </div>
 
     <script>
-        res.setHeader('Access-Control-Allow-Origin', 'https://cartromform.vercel.app');
-
         // Função para carregar as respostas do servidor
         function loadResponses() {
-            fetch('https://cartromform.vercel.app/')
-                .then(response => response.json())
+            fetch('https://cartromform.vercel.app/api/endpoint') // Certifique-se de usar o endpoint correto
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     const responsesBody = document.getElementById('responses-body');
                     responsesBody.innerHTML = '';
@@ -74,23 +73,21 @@
                     const ratingCounts = { "1": 0, "2": 0, "3": 0, "4": 0, "5": 0 };
 
                     data.forEach(response => {
-                        Object.keys(response).forEach(pergunta => {
-                            const tr = document.createElement('tr');
-                            const nota = response[pergunta].rating;
-                            const comentario = response[pergunta].comment;
+                        const pergunta = Object.keys(response)[0]; // Pega a primeira pergunta
+                        const nota = response[pergunta].rating;
+                        const comentario = response[pergunta].comment;
 
-                            tr.innerHTML = `
-                                <td>${pergunta}</td>
-                                <td>${nota}</td>
-                                <td>${comentario}</td>
-                            `;
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td>${pergunta}</td>
+                            <td>${nota}</td>
+                            <td>${comentario}</td>
+                        `;
+                        responsesBody.appendChild(tr);
 
-                            responsesBody.appendChild(tr);
-
-                            if (nota) {
-                                ratingCounts[nota]++;
-                            }
-                        });
+                        if (nota) {
+                            ratingCounts[nota]++;
+                        }
                     });
 
                     drawChart(ratingCounts);
@@ -131,3 +128,4 @@
 
 </body>
 </html>
+
