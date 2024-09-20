@@ -60,52 +60,43 @@
         <canvas id="ratings-chart"></canvas>
     </div>
 
-    <!-- Formulário para enviar novas respostas -->
-    <h2>Enviar Nova Resposta</h2>
-    <form id="response-form">
-        <label for="question">Pergunta:</label>
-        <input type="text" id="question" name="question" required>
-
-        <label for="rating">Nota (1-5):</label>
-        <input type="number" id="rating" name="rating" min="1" max="5" required>
-
-        <label for="comment">Comentário:</label>
-        <textarea id="comment" name="comment"></textarea>
-
-        <button type="submit">Enviar</button>
-    </form>
-
     <script>
+        // Função para carregar as respostas do servidor
         function loadResponses() {
-            const storedResponses = JSON.parse(localStorage.getItem('userResponses')) || [];
-            const responsesBody = document.getElementById('responses-body');
-            responsesBody.innerHTML = '';
+            fetch('https://cartromform.vercel.app/')
+                .then(response => response.json())
+                .then(data => {
+                    const responsesBody = document.getElementById('responses-body');
+                    responsesBody.innerHTML = '';
 
-            const ratingCounts = { "1": 0, "2": 0, "3": 0, "4": 0, "5": 0 };
+                    const ratingCounts = { "1": 0, "2": 0, "3": 0, "4": 0, "5": 0 };
 
-            storedResponses.forEach(response => {
-                Object.keys(response).forEach(pergunta => {
-                    const tr = document.createElement('tr');
-                    const nota = response[pergunta].rating;
-                    const comentario = response[pergunta].comment;
+                    data.forEach(response => {
+                        Object.keys(response).forEach(pergunta => {
+                            const tr = document.createElement('tr');
+                            const nota = response[pergunta].rating;
+                            const comentario = response[pergunta].comment;
 
-                    tr.innerHTML = `
-                        <td>${pergunta}</td>
-                        <td>${nota}</td>
-                        <td>${comentario}</td>
-                    `;
+                            tr.innerHTML = `
+                                <td>${pergunta}</td>
+                                <td>${nota}</td>
+                                <td>${comentario}</td>
+                            `;
 
-                    responsesBody.appendChild(tr);
+                            responsesBody.appendChild(tr);
 
-                    if (nota) {
-                        ratingCounts[nota]++;
-                    }
-                });
-            });
+                            if (nota) {
+                                ratingCounts[nota]++;
+                            }
+                        });
+                    });
 
-            drawChart(ratingCounts);
+                    drawChart(ratingCounts);
+                })
+                .catch(error => console.error('Erro ao carregar respostas:', error));
         }
 
+        // Função para desenhar o gráfico com as notas
         function drawChart(ratingCounts) {
             const ctx = document.getElementById('ratings-chart').getContext('2d');
             new Chart(ctx, {
@@ -132,45 +123,7 @@
             });
         }
 
-        function submitResponse(question, rating, comment) {
-            const responseData = {
-                question: question,
-                rating: rating,
-                comment: comment
-            };
-
-            fetch('https://cartromresp.vercel.app/', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(responseData)
-            })
-            .then(response => {
-                if (!response.ok) {
-                    return response.text().then(text => { throw new Error(`Erro ${response.status}: ${text}`); });
-                }
-                return response.json();
-            })
-            .then(data => {
-                console.log('Sucesso:', data);
-                alert('Resposta enviada com sucesso!');
-                loadResponses();
-            })
-            .catch(error => {
-                console.error('Erro:', error);
-                alert('Ocorreu um erro ao enviar a resposta.');
-            });
-        }
-
-        document.getElementById('response-form').addEventListener('submit', function(event) {
-            event.preventDefault();
-
-            const question = document.getElementById('question').value;
-            const rating = document.getElementById('rating').value;
-            const comment = document.getElementById('comment').value;
-
-            submitResponse(question, rating, comment);
-        });
-
+        // Carregar respostas ao carregar a página
         window.onload = loadResponses;
     </script>
 
