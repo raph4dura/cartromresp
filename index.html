@@ -3,128 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Respostas Armazenadas e Gráfico</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            color: #333;
-            padding: 20px;
-        }
-        h1, h2 {
-            text-align: center;
-        }
-        table {
-            width: 100%;
-            margin: 20px 0;
-            border-collapse: collapse;
-        }
-        th, td {
-            padding: 10px;
-            border: 1px solid #ccc;
-            text-align: left;
-        }
-        #chart-container {
-            width: 80%;
-            margin: 40px auto;
-        }
-        canvas {
-            background-color: #fff;
-            border: 1px solid #ccc;
-        }
-    </style>
+    <title>Respostas</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-
-    <h1>Respostas Armazenadas</h1>
-    <h2>Respostas dos Usuários</h2>
-
-    <table id="responses-table">
-        <thead>
-            <tr>
-                <th>Pergunta</th>
-                <th>Nota</th>
-                <th>Comentário</th>
-            </tr>
-        </thead>
-        <tbody id="responses-body"></tbody>
-    </table>
-
-    <h2>Gráfico das Notas</h2>
-    <div id="chart-container">
-        <canvas id="ratings-chart"></canvas>
+    <div class="container">
+        <h1>Respostas Recebidas</h1>
+        <div id="responses"></div>
     </div>
-
-    <script>
-        // Função para carregar as respostas do servidor
-        function loadResponses() {
-            fetch('https://cartromresp.vercel.app/api') // Endpoint correto para obter os dados
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    const responsesBody = document.getElementById('responses-body');
-                    responsesBody.innerHTML = '';
-
-                    const ratingCounts = { "1": 0, "2": 0, "3": 0, "4": 0, "5": 0 };
-
-                    data.forEach(response => {
-                        const pergunta = Object.keys(response)[0]; // Pega a primeira pergunta
-                        const nota = response[pergunta].rating;
-                        const comentario = response[pergunta].comment;
-
-                        const tr = document.createElement('tr');
-                        tr.innerHTML = `
-                            <td>${pergunta}</td>
-                            <td>${nota}</td>
-                            <td>${comentario}</td>
-                        `;
-                        responsesBody.appendChild(tr);
-
-                        if (nota) {
-                            ratingCounts[nota]++;
-                        }
-                    });
-
-                    drawChart(ratingCounts);
-                })
-                .catch(error => console.error('Erro ao carregar respostas:', error));
-        }
-
-        // Função para desenhar o gráfico com as notas
-        function drawChart(ratingCounts) {
-            const ctx = document.getElementById('ratings-chart').getContext('2d');
-            new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: ['1', '2', '3', '4', '5'],
-                    datasets: [{
-                        label: 'Quantidade de notas',
-                        data: [
-                            ratingCounts['1'],
-                            ratingCounts['2'],
-                            ratingCounts['3'],
-                            ratingCounts['4'],
-                            ratingCounts['5']
-                        ],
-                        backgroundColor: ['#ff4d4d', '#ff9933', '#ffcc00', '#66cc66', '#3399ff'],
-                        borderColor: '#333',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    scales: { y: { beginAtZero: true } }
-                }
-            });
-        }
-
-        // Carregar respostas ao carregar a página
-        window.onload = loadResponses;
-    </script>
-
+    <script src="script.js"></script>
 </body>
 </html>
